@@ -6,7 +6,7 @@ var options = {
 };
 
 var pgp = require('pg-promise')(options);
-var connectionString = 'postgres://localhost:5432/healthfit'; // startrek is an example database name
+var connectionString = process.env.DATABASE_URL;
 var db = pgp(connectionString);
 
 
