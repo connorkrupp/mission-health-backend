@@ -20,5 +20,6 @@ var db = require('./queries');
 
 router.get('/api/users/:userid', db.getUser);
 router.get('/api/groups/:groupid', db.getGroupInfo);
+router.post('/api/groups', db.createGroup);
 
 module.exports = router;

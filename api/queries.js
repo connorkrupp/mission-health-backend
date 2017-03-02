@@ -38,6 +38,7 @@ function getGroupInfo(req, res, next) {
 
       var group = {}
       group["id"] = groupid;
+      console.log(data);
       group["name"] = data[0]["group_name"];
       group["members"] = data.map(function (tuple) {
         return {
@@ -59,50 +60,25 @@ function getGroupInfo(req, res, next) {
     });
 }
 
-function getAllStarships(req, res, next) {
-  db.any('SELECT * FROM starships')
+function createGroup(req, res, next) {
+  db.one('INSERT INTO groups (name) values (${name}) RETURNING id', req.body)
     .then(function (data) {
-      res.status(200)
-        .json({
-          status: 'success',
-          data: data,
-          message: 'Retrieved all starships'
-        });
+      var groupId = data["id"];
+      var userId = req.body.user_id;
+      db.none('INSERT INTO group_member (group_id, user_id) values (${groupId}, ${userId})', { groupId, userId }).then(function () {
+        res.status(200)
+          .json({
+            status: 'success',
+            message: 'Created one group'
+          });
+      })
+      .catch(function (err) {
+        console.log(err);
+        return next(err);
+      });
     })
     .catch(function (err) {
-      return next(err);
-    });
-}
-
-function getStarship(req, res, next) {
-  var id = parseInt(req.params.id);
-  db.one('SELECT * FROM starships WHERE id = $1', id)
-    .then(function (data) {
-      res.status(200)
-        .json({
-          status: 'success',
-          data: data,
-          message: 'Retrieved one starship'
-        });
-    })
-    .catch(function (err) {
-      return next(err);
-    });
-}
-
-function createStarship(req, res, next) {
-  req.body.launched = parseInt(req.body.launched);
-  db.none('INSERT INTO starships(name, registry, affiliation, launched, class, captain)' +
-      'values(${name}, ${registry}, ${affiliation}, ${launched}, ${class}, ${captain})',
-    req.body)
-    .then(function () {
-      res.status(200)
-        .json({
-          status: 'success',
-          message: 'Inserted one starship'
-        });
-    })
-    .catch(function (err) {
+      console.log(err);
       return next(err);
     });
 }
@@ -147,9 +123,5 @@ function removeStarship(req, res, next) {
 module.exports = {
     getUser: getUser,
     getGroupInfo: getGroupInfo,
-    getAllStarships: getAllStarships,
-    getStarship: getStarship,
-    createStarship: createStarship,
-    updateStarship: updateStarship,
-    removeStarship: removeStarship
+    createGroup: createGroup
 };
