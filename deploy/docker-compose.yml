@@ -1,0 +1,28 @@
+version: '2'
+services:
+  mission_health_db:
+    image: mongo
+    restart: always
+  mission_health_web:
+    build:
+      context: ..
+    image: mission_health_web
+    environment:
+      MONGO_HOSTNAME: mission_health_db
+    restart: always
+  mission_health_nginx:
+    image: jwilder/nginx-proxy
+    volumes:
+      - /etc/nginx/certs
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+  mission_health_nginx_letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always

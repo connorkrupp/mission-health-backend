@@ -1,0 +1,27 @@
+version: '2'
+services:
+  mission_health_nginx:
+    extends:
+      file: docker-compose.yml
+      service: mission_health_nginx
+  mission_health_letsencrypt:
+    extends:
+      file: docker-compose.yml
+      service: mission_health_nginx_letsencrypt
+    volumes_from:
+      - mission_health_nginx
+  mission_health_db:
+    extends:
+      file: docker-compose.yml
+      service: mission_health_db
+  mission_health_web:
+    extends:
+      file: docker-compose.yml
+      service: mission_health_web
+    links:
+      - mission_health_db
+    environment:
+      MONGO_HOSTNAME: mission_health_db
+      VIRTUAL_HOST: mission_health.org
+      LETSENCRYPT_HOST: mission_health.org
+      LETSENCRYPT_EMAIL: hackathon@umich.edu

@@ -1,0 +1,21 @@
+version: '2'
+services:
+  mission_health_db:
+    extends:
+      file: docker-compose.yml
+      service: mission_health_db
+  mission_health_website:
+    extends:
+      file: docker-compose.yml
+      service: mission_health_web
+    ports:
+      - "3000:3000"
+    volumes:
+      - ..:/usr/src/app
+    command: sh -c "yarn install && nodemon app.js"
+    environment:
+      - DEBUG
+      - APIWORK
+      - MAILCHIMP_TOKEN
+    links:
+      - mission_health_db
