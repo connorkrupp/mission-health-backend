@@ -182,7 +182,9 @@ router.get('/:groupId/messages', authMiddleware('api'), function (req, res) {
             body: 1,
             createdAt: 1,
             sender: 1
-        }).then((messages) => {
+        })
+        .populate('sender', 'full_name')
+        .then((messages) => {
         res.send({
             status: true,
             messages: messages
